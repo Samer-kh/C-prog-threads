@@ -1,0 +1,16 @@
+pi cercle unitaire X 3 ponits 
+pi une autre x  3 points 
+quick sort ; merge sort 5 points 
+reg de Température 5 points 
+simulation d'un robot  7 points 
+ascenceuur 10 points + simulaltion 
+resto  [serveur ; clients; citoyens] 10
+game of life ( + visualition) 10
+
+
+
+tcl tk 
+vtk 
+sdl 
+qt 
+XWindow
