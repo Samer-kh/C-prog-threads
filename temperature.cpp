@@ -5,14 +5,15 @@
 #include <thread>
 #include <stdio.h>
 #include <random>
+#include <cstdlib>
 
 using namespace std;
 using namespace std::this_thread; 
 using namespace std::chrono; 
 
 //les températures et les pressions ( intervalles )
-#define MIN_PRESSION 3
-#define MAX_PRESSION 6
+#define MIN_PRESSION 5
+#define MAX_PRESSION 30
 #define MIN_TEMP 20
 #define MAX_TEMP 30
 
@@ -21,21 +22,43 @@ std::mutex verrou;
 double seuil_t,seuil_p;
 bool go_pompe=false,go_chauffage=false;
 
-//shared memory declaration
-double shared_mem_T;
-double shared_mem_P;
-
 //define the temps and pressure
 double min_temp=MIN_TEMP;
 double max_temp=MAX_TEMP;
 double min_p=MIN_PRESSION;
 double max_p=MAX_PRESSION;
+
+//deux fonctions pour la lecture de la pression et température externe 
+//la lecture est aléatoire 
+double Convertir_AD_temperature(double low ,double high)
+{
+    return low + static_cast<float>(rand()) * static_cast<float>(high - low) / RAND_MAX;
+}
+
+double Convertir_AD_pression(double low , double high)
+{
+    return low + static_cast<float>(rand()) * static_cast<float>(high - low) / RAND_MAX;
+}
+
+
+//declaration de la shared memory et initialisation des valeurs aléatoires de l'environnement externe 
+double shared_mem_T= Convertir_AD_temperature(min_temp,max_temp);
+double shared_mem_P= Convertir_AD_pression(min_p , max_p);
+
+//determination des temps aléatoires entre une et trois secondes
+int controller_time=rand() % 3 + 1;
+int chauffage_time=rand() % 3 + 1;
+int temp_time=rand() % 3 + 1;
+int pression_time=rand() % 3 + 1;
+int pompe_time=rand() % 3 + 1;
+
+//declaration du controlleur
 void controlleur()
 {
     while(true)
     {
         //wait a second 
-        sleep_until(system_clock::now() + seconds(1));
+        sleep_until(system_clock::now() + seconds(controller_time));
         verrou.lock();
         double T =shared_mem_T; 
         double P=shared_mem_P;
@@ -72,26 +95,18 @@ void controlleur()
     }
 }
 
-double Convertir_AD_temperature(double low ,double high)
-{
-    return low + static_cast<float>(rand()) * static_cast<float>(high - low) / RAND_MAX;
-}
-
-double Convertir_AD_pression(double low , double high)
-{
-    return low + static_cast<float>(rand()) * static_cast<float>(high - low) / RAND_MAX;
-}
 
 void chauffage()
 {
     while(true)
     {
-        sleep_until(system_clock::now() + seconds(1));
+        sleep_until(system_clock::now() + seconds(chauffage_time));
         if (go_chauffage)
         {
             //mise en action 
             verrou.lock();
-            shared_mem_T-=0.5; 
+            //action depend de la température
+            shared_mem_T+=0.5;
             verrou.unlock();
             
         }
@@ -102,7 +117,7 @@ void temperature()
 {   double T;
     while(true)
     {
-        sleep_until(system_clock::now() + seconds(1));
+        sleep_until(system_clock::now() + seconds(temp_time));
         T = Convertir_AD_temperature(min_temp,max_temp);
         verrou.lock();
         shared_mem_T=T;
@@ -115,9 +130,10 @@ void pression()
     double P;
     while(true)
     {
+        sleep_until(system_clock::now() + seconds(pression_time));
         P = Convertir_AD_pression(min_p,max_p);
         verrou.lock();
-        P=shared_mem_P;
+        shared_mem_P=P;
         verrou.unlock();
     }
 }
@@ -125,7 +141,7 @@ void pompe()
 {
     while(true)
     {
-        sleep_until(system_clock::now() + seconds(1));
+        sleep_until(system_clock::now() + seconds(pompe_time));
         if (go_pompe)
         {
             //mettre en route 
@@ -146,7 +162,11 @@ while (true)
     verrou.unlock();
     //clear console before writting 
     system("cls");
+    cout<<flush;
+    cout<<"Seuil de la température : "<<seuil_t<<endl;
     cout<<"La température est : "<< T <<endl;
+    cout<<"****************"<<endl;
+    cout<<"Seuil de la pression : "<<seuil_p<<endl;
     cout<<"La pression est : "<< P <<endl;
 
 }
