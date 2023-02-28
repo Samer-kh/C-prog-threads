@@ -7,7 +7,7 @@
 #include  <cstdlib>
 using namespace std;
 
-#define NB_POINTS 1000000L
+#define NB_POINTS 10000000L
 #define NB_THREADS 4
 double somme_globale=0.0f;
 int nb_iteration_d_un_thread=NB_POINTS;

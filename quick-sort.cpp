@@ -48,6 +48,9 @@ void quickSortWithThreads(std::vector<int> &arr, int first_arr , int last_arr)
       verrou.unlock();
       std::thread FirstThread(quickSortWithThreads,std::ref(arr),first_arr, index_pivot-1);
       FirstThread.join();
+      verrou.lock();
+      nb_thread--;
+      verrou.unlock();
     }
     else
     {
@@ -60,6 +63,9 @@ void quickSortWithThreads(std::vector<int> &arr, int first_arr , int last_arr)
       verrou.unlock();
       std::thread SecondThread(quickSortWithThreads,std::ref(arr),index_pivot + 1,last_arr);
       SecondThread.join();
+      verrou.lock();
+      nb_thread--;
+      verrou.unlock();
     }
     else
     {
@@ -77,7 +83,7 @@ void quickSortWithThreads(std::vector<int> &arr, int first_arr , int last_arr)
 }
 
 int main() {
-  std::vector<int> arr = {3, 44, 38, 5, 47, 15, 36, 26, 27, 2, 46, 4, 19, 50, 48};
+  std::vector<int> arr = {3, 44, 38, 5, 47, 15, 36, 26, 27, 2, 46, 4, 19, 50, 48, 4, 8, 1, 0, 58, 9, 0, 6, 5};
   quickSortWithThreads(arr, 0, arr.size() - 1);
   for (int i = 0; i < arr.size(); i++) {
     std::cout << arr[i] << " ";

@@ -77,6 +77,9 @@ void mergeAlg(vector<int>& tab , int left , int right)
             verrou.unlock();
             thread firstThread(mergeAlg, ref(tab), left, mid);
             firstThread.join();
+            verrou.lock();
+            nb_thread--;
+            verrou.unlock();
         }
         else
         {
@@ -92,6 +95,9 @@ void mergeAlg(vector<int>& tab , int left , int right)
             verrou.unlock();
             thread secondThread(mergeAlg, ref(tab), mid + 1, right);
             secondThread.join();
+            verrou.lock();
+            nb_thread--;
+            verrou.unlock();
         }
         else
         {
@@ -107,7 +113,7 @@ void mergeAlg(vector<int>& tab , int left , int right)
 //main to test the algorithm 
 int main()
 {
-    vector<int> Tab = { 2, 8, 0, 5, 6, 7 ,7 ,1 ,10 ,3 ,12 ,18};
+    vector<int> Tab = { 2, 8, 0, 5, 6, 7 ,7 ,1 ,10 ,3 ,12 , 18, 8, 2, 4, 6, 9, 7, 8, 20, 1, 785, 2, 9, 2, 1, 7, 89, 2};
     int length_tab = Tab.size();
 
     mergeAlg(Tab, 0, length_tab - 1);

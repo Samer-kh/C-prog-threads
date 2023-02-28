@@ -1,5 +1,5 @@
-// On calcul pi comme atant la somme des inverses des carrés des entiers
-// tq : π²/6=1/2 + 1/4 + 1/9 + 1/16 ...
+// On calcul pi comme étant la somme des inverses des carrés des entiers
+// tq : π²/6=1+ 1/4 + 1/9 + 1/16 ...
 
 #include  <thread>
 #include  <iostream>
